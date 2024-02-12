@@ -1,0 +1,24 @@
+{
+  "name": "Kepler <--> Pappers Extension",
+  "description": "This extension allows you to fill Kepler data with Pappers API data",
+  "version": "1.0",
+  "manifest_version": 3,
+  "icons": {
+    "16": "images/extension_icon.png",
+    "48": "images/extension_icon.png",
+    "128": "images/extension_icon.png"
+  },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "action": {
+    "default_popup": "html/popup.html",
+    "default_icon": "images/extension_icon.png"
+  },
+  "options_ui": {
+    "page": "html/options.html",
+    "open_in_tab": false
+  },
+  "web_accessible_resources": [{
+    "resources": ["images/company_photo.png"],
+    "matches": ["<all_urls>"]
+  }]
+}
