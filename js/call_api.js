@@ -1,6 +1,52 @@
 var borderCss = "2px solid #0d46a8";
 var apiKey = '';
 
+function setElementValue(element, value) {
+    if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+        element.value = value;
+    } else {
+        element.textContent = value;
+    }
+    element.style.border = borderCss;
+}
+
+function selectOption(element, optionText, createIfNotExist = false) {
+    let optionValue = Array.from(element.options).find(option => option.text.trim() === optionText.trim())?.value;
+    if (!optionValue && createIfNotExist) {
+        const newOption = new Option(optionText, optionText, true, true);
+        element.appendChild(newOption);
+        optionValue = newOption.value;
+    }
+    if (optionValue) {
+        element.value = optionValue;
+        element.dispatchEvent(new Event('change', {'bubbles': true}));
+        const select2Container = element.closest('.select2-container') || element.nextSibling;
+        if (select2Container?.classList.contains('select2-container')) {
+            select2Container.style.border = borderCss;
+        }
+    } else {
+        console.error(`Option with the text '${optionText}' not found`);
+    }
+}
+
+async function fetchData(apiKey, siret) {
+    const response = await fetch(`https://api.pappers.fr/v2/entreprise?api_token=${apiKey}&siret=${siret}`);
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return await response.json();
+}
+
+function fillFields(fieldMappings, data) {
+    Object.entries(fieldMappings).forEach(([suffix, value]) => {
+        document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
+            setElementValue(element, value);
+        });
+    });
+}
+
+// Rest of the code remains the same
+
 function changePlaceholderImage(single = true) {
     let imgElements = document.querySelectorAll("#carousel1 > div > div > img");
 
@@ -17,68 +63,15 @@ function changePlaceholderImage(single = true) {
     }
 }
 
-function findOptionValueByText(selectElement, searchText) {
-    for (const option of selectElement.options) {
-        if (option.text.trim() === searchText.trim()) {
-            return option.value;
-        }
-    }
-    return null;
-}
-
-function selectAddressCountry(country) {
-    document.querySelectorAll("[id$='_contactAddresses_1_address_country']").forEach(element => {
-        let valueForFrance = findOptionValueByText(element, country);
-        if (valueForFrance !== null) {
-            element.value = valueForFrance;
-            element.dispatchEvent(new Event('change', {'bubbles': true}));
-            let select2Container = element.closest('.select2-container') || element.nextSibling;
-            if (select2Container && select2Container.classList.contains('select2-container')) {
-                select2Container.style.border = borderCss;
-            }
-        } else {
-            console.error("Option avec le texte 'France' non trouvée");
-        }
+function selectCountry(idSuffix, country) {
+    document.querySelectorAll(`[id$='${idSuffix}']`).forEach(element => {
+        selectOption(element, country);
     });
 }
 
-function selectAddressCountry2(country) {
-    document.querySelectorAll("[id$='_addressBilling_country']").forEach(element => {
-        let valueForFrance = findOptionValueByText(element, country);
-        if (valueForFrance !== null) {
-            element.value = valueForFrance;
-            element.dispatchEvent(new Event('change', {'bubbles': true}));
-            let select2Container = element.closest('.select2-container') || element.nextSibling;
-            if (select2Container && select2Container.classList.contains('select2-container')) {
-                select2Container.style.border = borderCss;
-            }
-        } else {
-            console.error("Option avec le texte 'France' non trouvée");
-        }
-    });
-}
-
-function selectLegalForm(legalForm) {
-    document.querySelectorAll("select[id$='_legalFormContact']").forEach(selectElement => {
-        const newOption = new Option(legalForm, legalForm, true, true);
-        selectElement.appendChild(newOption);
-        selectElement.dispatchEvent(new Event('change', {'bubbles': true}));
-        let select2Container = selectElement.closest('.select2-container') || selectElement.nextSibling;
-        if (select2Container && select2Container.classList.contains('select2-container')) {
-            select2Container.style.border = borderCss;
-        }
-    });
-}
-
-function selectLegalForm2(legalForm) {
-    document.querySelectorAll("select[id$='_legalForm']").forEach(selectElement => {
-        const newOption = new Option(legalForm, legalForm, true, true);
-        selectElement.appendChild(newOption);
-        selectElement.dispatchEvent(new Event('change', {'bubbles': true}));
-        let select2Container = selectElement.closest('.select2-container') || selectElement.nextSibling;
-        if (select2Container && select2Container.classList.contains('select2-container')) {
-            select2Container.style.border = borderCss;
-        }
+function selectLegalFormById(idSuffix, legalForm) {
+    document.querySelectorAll(`select[id$='${idSuffix}']`).forEach(selectElement => {
+        selectOption(selectElement, legalForm, true);
     });
 }
 
@@ -93,94 +86,67 @@ function askForSiretAndCallApi(apiKey) {
     }
 }
 
-function call_api(apiKey, siret) {
-    fetch('https://api.pappers.fr/v2/entreprise?api_token=' + apiKey + '&siret= ' + siret)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
+async function call_api(apiKey, siret) {
+    try {
+        const data = await fetchData(apiKey, siret);
 
-            // Check if current url has this string "admin/contact-professional/create" in the url and alert if success
-            if (window.location.href.indexOf("admin/contact-professional/create") > -1) {
-                let fieldMappings = {
-                    '_siret': data.etablissement.siret,
-                    '_corporateNameContact': data.nom_entreprise,
-                    '_tvaIntracom': data.numero_tva_intracommunautaire,
-                    '_contactAddresses_1_address_name': data.nom_entreprise,
-                    '_contactAddresses_1_address_address': data.etablissement.adresse_ligne_1,
-                    '_contactAddresses_1_address_address2': data.etablissement.complement_adresse,
-                    '_contactAddresses_1_address_postalCode': data.etablissement.code_postal,
-                    '_contactAddresses_1_address_city': data.etablissement.ville,
-                    '_companyCreationDate': data.date_creation_formate,
-                    '_numberOfEmployees': data.effectif_max,
-                    '_socialCapital': data.capital,
-                    '_interestComment': 'Data fetched from Pappers API ✅', // Pour les éléments textuels
-                };
+        // Check if current url has this string "admin/contact-professional/create" in the url and alert if success
+        if (window.location.href.indexOf("admin/contact-professional/create") > -1) {
+            let fieldMappings = {
+                '_siret': data.etablissement.siret,
+                '_corporateNameContact': data.nom_entreprise,
+                '_tvaIntracom': data.numero_tva_intracommunautaire,
+                '_contactAddresses_1_address_name': data.nom_entreprise,
+                '_contactAddresses_1_address_address': data.etablissement.adresse_ligne_1,
+                '_contactAddresses_1_address_address2': data.etablissement.complement_adresse,
+                '_contactAddresses_1_address_postalCode': data.etablissement.code_postal,
+                '_contactAddresses_1_address_city': data.etablissement.ville,
+                '_companyCreationDate': data.date_creation_formate,
+                '_numberOfEmployees': data.effectif_max,
+                '_socialCapital': data.capital,
+                '_interestComment': 'Data fetched from Pappers API ✅', // Pour les éléments textuels
+            };
 
-                var element = document.querySelector("a[href='#add']");
-                if (element) {
-                    element.click();
-                }
-
-
-                Object.entries(fieldMappings).forEach(([suffix, value]) => {
-                    document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
-                        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                            element.value = value; // Pour les champs input et select
-                        } else {
-                            element.textContent = value; // Pour les autres éléments, comme les divs ou spans
-                        }
-                        element.style.border = "2px solid #0d46a8"; // Appliquer la bordure
-                    });
-                });
-
-                changePlaceholderImage();
-                selectAddressCountry(data.etablissement.pays);
-                selectLegalForm(data.forme_juridique);
+            var element = document.querySelector("a[href='#add']");
+            if (element) {
+                element.click();
             }
 
+            fillFields(fieldMappings, data);
 
-            if (window.location.href.match(/admin\/group\/\d+\/edit/) || window.location.href.indexOf("admin/group/create") > -1) {
-                let fieldMappings = {
-                    '_corporateName': data.nom_entreprise,
-                    '_siretNumber': data.etablissement.siret,
-                    '_legalForm' : data.forme_juridique,
-                    '_addressBilling_address': data.etablissement.adresse_ligne_1,
-                    '_addressBilling_address2': data.etablissement.complement_adresse,
-                    '_addressBilling_postalCode': data.etablissement.code_postal,
-                    '_addressBilling_city': data.etablissement.ville,
-                    '_wCertificate': data.siren,
-                    '_rcs': data.numero_rcs,
-                    '_apeCode': data.code_naf,
-                    '_vatNumber': data.numero_tva_intracommunautaire,
-                    '_capitalStock': data.capital,
-                    '_activity': data.etablissement.rcs,
-                    '_groupCreationDate': data.date_creation_formate,
-                };
+            changePlaceholderImage();
+            selectCountry('_contactAddresses_1_address_country', data.etablissement.pays);
+            selectLegalFormById('_legalFormContact', data.forme_juridique);
+        }
 
-                Object.entries(fieldMappings).forEach(([suffix, value]) => {
-                    document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
-                        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                            element.value = value; // Pour les champs input et select
-                        } else {
-                            element.textContent = value; // Pour les autres éléments, comme les divs ou spans
-                        }
-                        element.style.border = "2px solid #0d46a8"; // Appliquer la bordure
-                    });
-                });
+        if (window.location.href.match(/admin\/group\/\d+\/edit/) || window.location.href.indexOf("admin/group/create") > -1) {
+            let fieldMappings = {
+                '_corporateName': data.nom_entreprise,
+                '_siretNumber': data.etablissement.siret,
+                '_legalForm': data.forme_juridique,
+                '_addressBilling_address': data.etablissement.adresse_ligne_1,
+                '_addressBilling_address2': data.etablissement.complement_adresse,
+                '_addressBilling_postalCode': data.etablissement.code_postal,
+                '_addressBilling_city': data.etablissement.ville,
+                '_wCertificate': data.siren,
+                '_rcs': data.numero_rcs,
+                '_apeCode': data.code_naf,
+                '_vatNumber': data.numero_tva_intracommunautaire,
+                '_capitalStock': data.capital,
+                '_activity': data.etablissement.rcs,
+                '_groupCreationDate': data.date_creation_formate,
+            };
 
-                changePlaceholderImage(false);
-                selectAddressCountry2(data.etablissement.pays);
-                selectLegalForm2(data.forme_juridique);
-            }
-        })
-        .catch(error => {
-            // Error callback logic
-            console.error("Request error :", error);
-        });
+            fillFields(fieldMappings, data);
+
+            changePlaceholderImage(false);
+            selectCountry('_addressBilling_country', data.etablissement.pays);
+            selectLegalFormById('_legalForm', data.forme_juridique);
+        }
+    } catch (error) {
+        // Error callback logic
+        console.error("Request error :", error);
+    }
 }
 
 chrome.storage.sync.get(["apiKey"]).then((result) => {
