@@ -2,7 +2,6 @@ const saveOptions = () => {
     const apiKey = document.getElementById('apiKey').value;
 
     chrome.storage.sync.set({apiKey: apiKey}, () => {
-            // Update status to let user know options were saved.
             const status = document.getElementById('status');
             status.textContent = 'Options saved.';
             setTimeout(() => {

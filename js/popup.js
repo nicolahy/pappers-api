@@ -1,5 +1,5 @@
-const injectFile = document.getElementById('call-api');
-const injectFunction = document.getElementById('check-options');
+const callApiButton = document.getElementById('call-api');
+const checkOptionsButton = document.getElementById('check-options');
 
 async function getCurrentTab() {
     const queryOptions = {active: true, currentWindow: true};
@@ -7,7 +7,7 @@ async function getCurrentTab() {
     return tab;
 }
 
-injectFile.addEventListener('click', async () => {
+callApiButton.addEventListener('click', async () => {
     const tab = await getCurrentTab();
 
     chrome.scripting.executeScript({
@@ -16,7 +16,7 @@ injectFile.addEventListener('click', async () => {
     });
 });
 
-injectFunction.addEventListener('click', async () => {
+checkOptionsButton.addEventListener('click', async () => {
     const tab = await getCurrentTab();
 
     chrome.scripting.executeScript({

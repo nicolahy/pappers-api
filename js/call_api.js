@@ -1,4 +1,4 @@
-var borderCss = "2px solid #0d46a8";
+var borderCss = '2px solid #0d46a8';
 var apiKey = '';
 
 function setElementValue(element, value) {
@@ -45,8 +45,6 @@ function fillFields(fieldMappings, data) {
     });
 }
 
-// Rest of the code remains the same
-
 function changePlaceholderImage(single = true) {
     let imgElements = document.querySelectorAll("#carousel1 > div > div > img");
 
@@ -59,7 +57,7 @@ function changePlaceholderImage(single = true) {
             imgElements[1].style.border = borderCss;
         }
     } else {
-        console.log(`L'élément image n'a pas été trouvé.`);
+        console.log('The image element was not found.');
     }
 }
 
@@ -76,13 +74,13 @@ function selectLegalFormById(idSuffix, legalForm) {
 }
 
 function askForSiretAndCallApi(apiKey) {
-    let siret = prompt("Veuillez entrer le SIRET de l'entreprise :");
+    let siret = prompt("Please enter the company SIRET:");
 
     if (siret) {
         siret = siret.replace(/\s+/g, '');
         call_api(apiKey, siret);
     } else {
-        alert("Aucun SIRET fourni. L'opération a été annulée.");
+        alert("No SIRET provided. The operation was canceled.");
     }
 }
 
