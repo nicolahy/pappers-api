@@ -42,8 +42,36 @@ function selectAddressCountry(country) {
     });
 }
 
+function selectAddressCountry2(country) {
+    document.querySelectorAll("[id$='_addressBilling_country']").forEach(element => {
+        let valueForFrance = findOptionValueByText(element, country);
+        if (valueForFrance !== null) {
+            element.value = valueForFrance;
+            element.dispatchEvent(new Event('change', {'bubbles': true}));
+            let select2Container = element.closest('.select2-container') || element.nextSibling;
+            if (select2Container && select2Container.classList.contains('select2-container')) {
+                select2Container.style.border = borderCss;
+            }
+        } else {
+            console.error("Option avec le texte 'France' non trouvée");
+        }
+    });
+}
+
 function selectLegalForm(legalForm) {
     document.querySelectorAll("select[id$='_legalFormContact']").forEach(selectElement => {
+        const newOption = new Option(legalForm, legalForm, true, true);
+        selectElement.appendChild(newOption);
+        selectElement.dispatchEvent(new Event('change', {'bubbles': true}));
+        let select2Container = selectElement.closest('.select2-container') || selectElement.nextSibling;
+        if (select2Container && select2Container.classList.contains('select2-container')) {
+            select2Container.style.border = borderCss;
+        }
+    });
+}
+
+function selectLegalForm2(legalForm) {
+    document.querySelectorAll("select[id$='_legalForm']").forEach(selectElement => {
         const newOption = new Option(legalForm, legalForm, true, true);
         selectElement.appendChild(newOption);
         selectElement.dispatchEvent(new Event('change', {'bubbles': true}));
@@ -114,8 +142,8 @@ function call_api(apiKey, siret) {
                 selectLegalForm(data.forme_juridique);
             }
 
-            // Check if current url has this string "admin/group/{id}/edit" pattern in the url with regex and alert if success
-            if (window.location.href.match(/admin\/group\/\d+\/edit/)) {
+
+            if (window.location.href.match(/admin\/group\/\d+\/edit/) || window.location.href.indexOf("admin/group/create") > -1) {
                 let fieldMappings = {
                     '_corporateName': data.nom_entreprise,
                     '_siretNumber': data.etablissement.siret,
@@ -124,7 +152,6 @@ function call_api(apiKey, siret) {
                     '_addressBilling_address2': data.etablissement.complement_adresse,
                     '_addressBilling_postalCode': data.etablissement.code_postal,
                     '_addressBilling_city': data.etablissement.ville,
-                    '_addressSellingPoint_country': data.etablissement.pays,
                     '_wCertificate': data.siren,
                     '_rcs': data.numero_rcs,
                     '_apeCode': data.code_naf,
@@ -146,8 +173,8 @@ function call_api(apiKey, siret) {
                 });
 
                 changePlaceholderImage(false);
-                // selectAddressCountry(data.etablissement.pays);
-                // selectLegalForm(data.forme_juridique);
+                selectAddressCountry2(data.etablissement.pays);
+                selectLegalForm2(data.forme_juridique);
             }
         })
         .catch(error => {
