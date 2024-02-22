@@ -1,18 +1,21 @@
 var borderCss = "2px solid #0d46a8";
 var apiKey = '';
 
-function changePlaceholderImage() {
-    let imgElement = document.querySelector("#carousel1 > div > div > img");
+function changePlaceholderImage(single = true) {
+    let imgElements = document.querySelectorAll("#carousel1 > div > div > img");
 
-    if (imgElement) {
-        imgElement.src = chrome.runtime.getURL("images/company_photo.png");
-        imgElement.style.border = borderCss;
+    if (imgElements.length > 0) {
+        imgElements[0].src = chrome.runtime.getURL(`images/placeholder_1.png`);
+        imgElements[0].style.border = borderCss;
+
+        if (!single && imgElements.length > 1) {
+            imgElements[1].src = chrome.runtime.getURL(`images/placeholder_2.png`);
+            imgElements[1].style.border = borderCss;
+        }
     } else {
-        console.log("L'élément image n'a pas été trouvé.");
+        console.log(`L'élément image n'a pas été trouvé.`);
     }
 }
-
-changePlaceholderImage();
 
 function findOptionValueByText(selectElement, searchText) {
     for (const option of selectElement.options) {
@@ -72,58 +75,80 @@ function call_api(apiKey, siret) {
         })
         .then(data => {
 
-            var element = document.querySelector("a[href='#add']");
-            if (element) {
-                element.click();
+            // Check if current url has this string "admin/contact-professional/create" in the url and alert if success
+            if (window.location.href.indexOf("admin/contact-professional/create") > -1) {
+                let fieldMappings = {
+                    '_siret': data.etablissement.siret,
+                    '_corporateNameContact': data.nom_entreprise,
+                    '_tvaIntracom': data.numero_tva_intracommunautaire,
+                    '_contactAddresses_1_address_name': data.nom_entreprise,
+                    '_contactAddresses_1_address_address': data.etablissement.adresse_ligne_1,
+                    '_contactAddresses_1_address_address2': data.etablissement.complement_adresse,
+                    '_contactAddresses_1_address_postalCode': data.etablissement.code_postal,
+                    '_contactAddresses_1_address_city': data.etablissement.ville,
+                    '_companyCreationDate': data.date_creation_formate,
+                    '_numberOfEmployees': data.effectif_max,
+                    '_socialCapital': data.capital,
+                    '_interestComment': 'Data fetched from Pappers API ✅', // Pour les éléments textuels
+                };
+
+                var element = document.querySelector("a[href='#add']");
+                if (element) {
+                    element.click();
+                }
+
+
+                Object.entries(fieldMappings).forEach(([suffix, value]) => {
+                    document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
+                        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+                            element.value = value; // Pour les champs input et select
+                        } else {
+                            element.textContent = value; // Pour les autres éléments, comme les divs ou spans
+                        }
+                        element.style.border = "2px solid #0d46a8"; // Appliquer la bordure
+                    });
+                });
+
+                changePlaceholderImage();
+                selectAddressCountry(data.etablissement.pays);
+                selectLegalForm(data.forme_juridique);
             }
 
-            let fieldMappings = {
-                '_siret': data.etablissement.siret,
-                '_corporateNameContact': data.nom_entreprise,
-                '_tvaIntracom': data.numero_tva_intracommunautaire,
-                '_contactAddresses_1_address_name': data.nom_entreprise,
-                '_contactAddresses_1_address_address': data.etablissement.adresse_ligne_1,
-                '_contactAddresses_1_address_address2': data.etablissement.complement_adresse,
-                '_contactAddresses_1_address_postalCode': data.etablissement.code_postal,
-                '_contactAddresses_1_address_city': data.etablissement.ville,
-                '_companyCreationDate': data.date_creation_formate,
-                '_numberOfEmployees': data.effectif_max,
-                '_socialCapital': data.capital,
-                '_interestComment': 'Data fetched from Pappers API', // Pour les éléments textuels
+            // Check if current url has this string "admin/group/{id}/edit" pattern in the url with regex and alert if success
+            if (window.location.href.match(/admin\/group\/\d+\/edit/)) {
+                let fieldMappings = {
+                    '_corporateName': data.nom_entreprise,
+                    '_siretNumber': data.etablissement.siret,
+                    '_legalForm' : data.forme_juridique,
+                    '_addressBilling_address': data.etablissement.adresse_ligne_1,
+                    '_addressBilling_address2': data.etablissement.complement_adresse,
+                    '_addressBilling_postalCode': data.etablissement.code_postal,
+                    '_addressBilling_city': data.etablissement.ville,
+                    '_addressSellingPoint_country': data.etablissement.pays,
+                    '_wCertificate': data.siren,
+                    '_rcs': data.numero_rcs,
+                    '_apeCode': data.code_naf,
+                    '_vatNumber': data.numero_tva_intracommunautaire,
+                    '_capitalStock': data.capital,
+                    '_activity': data.etablissement.rcs,
+                    '_groupCreationDate': data.date_creation_formate,
+                };
 
-
-                '_corporateName': data.nom_entreprise,
-                '_siretNumber': data.etablissement.siret,
-                '_legalForm' : data.forme_juridique,
-                '_addressBilling_address': data.etablissement.adresse_ligne_1,
-                '_addressBilling_address2': data.etablissement.complement_adresse,
-                '_addressBilling_postalCode': data.etablissement.code_postal,
-                '_addressBilling_city': data.etablissement.ville,
-                '_addressSellingPoint_country': data.etablissement.pays,
-                '_wCertificate': data.etablissement.siren,
-                '_rcs': data.etablissement.rcs,
-                '_apeCode': data.etablissement.rcs,
-                '_vatNumber': data.etablissement.rcs,
-                '_capitalStock': data.etablissement.rcs,
-                '_activity': data.etablissement.rcs,
-                '_groupCreationDate': data.etablissement.rcs,
-
-            };
-
-            Object.entries(fieldMappings).forEach(([suffix, value]) => {
-                document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
-                    if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                        element.value = value; // Pour les champs input et select
-                    } else {
-                        element.textContent = value; // Pour les autres éléments, comme les divs ou spans
-                    }
-                    element.style.border = "2px solid #0d46a8"; // Appliquer la bordure
+                Object.entries(fieldMappings).forEach(([suffix, value]) => {
+                    document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
+                        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+                            element.value = value; // Pour les champs input et select
+                        } else {
+                            element.textContent = value; // Pour les autres éléments, comme les divs ou spans
+                        }
+                        element.style.border = "2px solid #0d46a8"; // Appliquer la bordure
+                    });
                 });
-            });
 
-            changePlaceholderImage();
-            selectAddressCountry(data.etablissement.pays);
-            selectLegalForm(data.forme_juridique);
+                changePlaceholderImage(false);
+                // selectAddressCountry(data.etablissement.pays);
+                // selectLegalForm(data.forme_juridique);
+            }
         })
         .catch(error => {
             // Error callback logic

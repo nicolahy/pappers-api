@@ -19,7 +19,7 @@
     "open_in_tab": false
   },
   "web_accessible_resources": [{
-    "resources": ["images/company_photo.png"],
+    "resources": ["images/placeholder_1.png", "images/placeholder_2.png"],
     "matches": ["<all_urls>"]
   }]
 }
