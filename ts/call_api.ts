@@ -1,7 +1,28 @@
 var borderCss = '2px solid #0d46a8';
 var apiKey = '';
 
-function setElementValue(element, value) {
+type Data = {
+    effectif_max: string;
+    nom_entreprise: string,
+    etablissement: {
+        siret: string,
+        adresse_ligne_1: string,
+        complement_adresse: string,
+        code_postal: string,
+        ville: string,
+        pays: string,
+        rcs: string
+    },
+    siren: string,
+    numero_rcs: string,
+    code_naf: string,
+    numero_tva_intracommunautaire: string,
+    capital: string,
+    date_creation_formate: string,
+    forme_juridique: string
+};
+
+function setElementValue(element: Element, value: unknown) {
     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
         element.value = value;
     } else {
@@ -10,7 +31,7 @@ function setElementValue(element, value) {
     element.style.border = borderCss;
 }
 
-function selectOption(element, optionText, createIfNotExist = false) {
+function selectOption(element: Element, optionText: string | undefined, createIfNotExist = false) {
     let optionValue = Array.from(element.options).find(option => option.text.trim() === optionText.trim())?.value;
     if (!optionValue && createIfNotExist) {
         const newOption = new Option(optionText, optionText, true, true);
@@ -29,7 +50,7 @@ function selectOption(element, optionText, createIfNotExist = false) {
     }
 }
 
-async function fetchData(apiKey, siret) {
+async function fetchData(apiKey: string, siret: string) {
     const response = await fetch(`https://api.pappers.fr/v2/entreprise?api_token=${apiKey}&siret=${siret}`);
     if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -37,7 +58,7 @@ async function fetchData(apiKey, siret) {
     return await response.json();
 }
 
-function fillFields(fieldMappings, data) {
+function fillFields(fieldMappings, data: Data) {
     Object.entries(fieldMappings).forEach(([suffix, value]) => {
         document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
             setElementValue(element, value);
@@ -61,19 +82,19 @@ function changePlaceholderImage(single = true) {
     }
 }
 
-function selectCountry(idSuffix, country) {
+function selectCountry(idSuffix: string, country: string) {
     document.querySelectorAll(`[id$='${idSuffix}']`).forEach(element => {
         selectOption(element, country);
     });
 }
 
-function selectLegalFormById(idSuffix, legalForm) {
+function selectLegalFormById(idSuffix: string, legalForm: string) {
     document.querySelectorAll(`select[id$='${idSuffix}']`).forEach(selectElement => {
         selectOption(selectElement, legalForm, true);
     });
 }
 
-function askForSiretAndCallApi(apiKey) {
+function askForSiretAndCallApi(apiKey: string) {
     let siret = prompt("Please enter the company SIRET:");
 
     if (siret) {
@@ -84,7 +105,7 @@ function askForSiretAndCallApi(apiKey) {
     }
 }
 
-async function call_api(apiKey, siret) {
+async function call_api(apiKey: string, siret: string) {
     try {
         const data = await fetchData(apiKey, siret);
 
@@ -100,7 +121,7 @@ async function call_api(apiKey, siret) {
     }
 }
 
-function handleContactProfessionalCreatePage(data) {
+function handleContactProfessionalCreatePage(data: Data) {
     let fieldMappings = {
         '_siret': data.etablissement.siret,
         '_corporateNameContact': data.nom_entreprise,
@@ -128,7 +149,7 @@ function handleContactProfessionalCreatePage(data) {
     selectLegalFormById('_legalFormContact', data.forme_juridique);
 }
 
-function handleGroupEditOrCreatePage(data) {
+function handleGroupEditOrCreatePage(data: Data) {
     let fieldMappings = {
         '_corporateName': data.nom_entreprise,
         '_siretNumber': data.etablissement.siret,
