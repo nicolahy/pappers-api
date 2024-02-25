@@ -11,24 +11,16 @@ if (callApiButton === null || checkOptionsButton === null) {
     throw new Error("One of the buttons is null.");
 }
 
-callApiButton.addEventListener('click', async (): Promise<void> => {
-    const tab: chrome.tabs.Tab = await getCurrentTab();
-
-    if (tab && tab.id !== undefined) {
-        await chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['dist/call_api.js']
-    });
-        }
-});
-
-checkOptionsButton.addEventListener('click', async (): Promise<void> => {
+async function executeScript(file: string): Promise<void> {
     const tab: chrome.tabs.Tab = await getCurrentTab();
 
     if (tab && tab.id !== undefined) {
         await chrome.scripting.executeScript({
             target: {tabId: tab.id},
-            files: ['dist/check_options.js']
+            files: [file]
         });
     }
-});
+}
+
+callApiButton.addEventListener('click', () => executeScript('dist/call_api.js'));
+checkOptionsButton.addEventListener('click', () => executeScript('dist/check_options.js'));
