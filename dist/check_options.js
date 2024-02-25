@@ -1,0 +1,1 @@
+(()=>{"use strict";chrome.storage.sync.get(["apiKey"]).then((e=>{e.apiKey?alert("Current Pappers API key value : "+e.apiKey):alert("Pappers API key is not defined !. Go to the options page to define it.")}))})();

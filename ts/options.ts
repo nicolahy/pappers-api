@@ -1,8 +1,19 @@
 const saveOptions = () => {
-    const apiKey = document.getElementById('apiKey').value;
+    const inputElement: HTMLInputElement | null = document.getElementById('apiKey') as HTMLInputElement | null;
+
+    if (inputElement === null) {
+        return;
+    }
+
+    const apiKey: string = inputElement.value;
 
     chrome.storage.sync.set({apiKey: apiKey}, () => {
-            const status = document.getElementById('status');
+            const status: HTMLElement | null = document.getElementById('status');
+
+            if (status === null) {
+                return;
+            }
+
             status.textContent = 'Options saved.';
             setTimeout(() => {
                 status.textContent = '';
@@ -12,11 +23,18 @@ const saveOptions = () => {
 };
 
 const restoreOptions = () => {
-    chrome.storage.sync.get({apiKey: 'XXX'}, (items) => {
-            document.getElementById('apiKey').value = items.apiKey;
+    chrome.storage.sync.get({apiKey: 'XXX'}, (items: { [p: string]: any }): void => {
+            const apiKeyElement: HTMLInputElement | null = document.getElementById('apiKey') as HTMLInputElement | null;
+            if (apiKeyElement) {
+                apiKeyElement.value = items.apiKey;
+            }
         }
     );
 };
 
 document.addEventListener('DOMContentLoaded', restoreOptions);
-document.getElementById('save').addEventListener('click', saveOptions);
+
+const saveElement: HTMLButtonElement | null = document.getElementById('save') as HTMLButtonElement | null
+if (saveElement) {
+    saveElement.addEventListener('click', saveOptions);
+}

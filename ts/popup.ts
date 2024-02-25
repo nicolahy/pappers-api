@@ -1,26 +1,34 @@
-const callApiButton = document.getElementById('call-api');
-const checkOptionsButton = document.getElementById('check-options');
+const callApiButton: HTMLButtonElement | null = document.getElementById('call-api') as HTMLButtonElement | null;
+const checkOptionsButton: HTMLButtonElement | null = document.getElementById('check-options') as HTMLButtonElement | null;
 
-async function getCurrentTab() {
+async function getCurrentTab(): Promise<chrome.tabs.Tab> {
     const queryOptions = {active: true, currentWindow: true};
-    const [tab] = await chrome.tabs.query(queryOptions);
+    const [tab]: chrome.tabs.Tab[] = await chrome.tabs.query(queryOptions);
     return tab;
 }
 
-callApiButton.addEventListener('click', async () => {
-    const tab = await getCurrentTab();
+if (callApiButton === null || checkOptionsButton === null) {
+    throw new Error("One of the buttons is null.");
+}
 
-    chrome.scripting.executeScript({
+callApiButton.addEventListener('click', async (): Promise<void> => {
+    const tab: chrome.tabs.Tab = await getCurrentTab();
+
+    if (tab && tab.id !== undefined) {
+        await chrome.scripting.executeScript({
         target: {tabId: tab.id},
-        files: ['js/call_api.js']
+        files: ['dist/call_api.js']
     });
+        }
 });
 
-checkOptionsButton.addEventListener('click', async () => {
-    const tab = await getCurrentTab();
+checkOptionsButton.addEventListener('click', async (): Promise<void> => {
+    const tab: chrome.tabs.Tab = await getCurrentTab();
 
-    chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['js/check_options.js']
-    });
+    if (tab && tab.id !== undefined) {
+        await chrome.scripting.executeScript({
+            target: {tabId: tab.id},
+            files: ['dist/check_options.js']
+        });
+    }
 });
