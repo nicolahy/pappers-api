@@ -22,6 +22,20 @@ type Data = {
     forme_juridique: string
 };
 
+function convertRcsString(rcsString: string): string {
+
+    if (rcsString.length <= 0) {
+        throw new Error("String length must be greater than 0");
+    }
+
+    let parts: string[] = rcsString.split(' ');
+    let number: string = parts[0] + parts[1] + parts[2];
+    let rcs: string = parts[3];
+    let city: string = parts[4];
+
+    return `${rcs} ${city} ${number}`;
+}
+
 function setElementValue(element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value: string) {
     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
         element.value = value;
@@ -58,15 +72,15 @@ async function fetchData(apiKey: string, siret: string) {
     return await response.json();
 }
 
-function fillFields(fieldMappings: { [s: string]: string; }, data: Data) {
-    Object.entries(fieldMappings).forEach(([suffix, value]) => {
+function fillFields(fieldMappings: { [s: string]: string; }, data: Data): void {
+    Object.entries(fieldMappings).forEach(([suffix, value]): void => {
         document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
             setElementValue(element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value);
         });
     });
 }
 
-function changePlaceholderImage(single = true) {
+function changePlaceholderImage(single = true): void {
     let imgElements: NodeListOf<HTMLImageElement> = document.querySelectorAll("#carousel1 > div > div > img");
 
     if (imgElements.length > 0) {
@@ -82,13 +96,13 @@ function changePlaceholderImage(single = true) {
     }
 }
 
-function selectCountry(idSuffix: string, country: string) {
+function selectCountry(idSuffix: string, country: string): void {
     document.querySelectorAll(`[id$='${idSuffix}']`).forEach(selectElement => {
         selectOption(selectElement as HTMLSelectElement, country);
     });
 }
 
-function selectLegalFormById(idSuffix: string, legalForm: string) {
+function selectLegalFormById(idSuffix: string, legalForm: string): void {
     document.querySelectorAll(`select[id$='${idSuffix}']`).forEach(selectElement => {
         selectOption(selectElement as HTMLSelectElement, legalForm, true);
     });
@@ -121,7 +135,7 @@ async function call_api(apiKey: string, siret: string): Promise<void> {
     }
 }
 
-function handleContactProfessionalCreatePage(data: Data) {
+function handleContactProfessionalCreatePage(data: Data): void {
     let fieldMappings = {
         '_siret': data.etablissement.siret,
         '_corporateNameContact': data.nom_entreprise,
@@ -149,7 +163,7 @@ function handleContactProfessionalCreatePage(data: Data) {
     selectLegalFormById('_legalFormContact', data.forme_juridique);
 }
 
-function handleGroupEditOrCreatePage(data: Data) {
+function handleGroupEditOrCreatePage(data: Data): void {
     let fieldMappings = {
         '_corporateName': data.nom_entreprise,
         '_siretNumber': data.etablissement.siret,
@@ -159,7 +173,7 @@ function handleGroupEditOrCreatePage(data: Data) {
         '_addressBilling_postalCode': data.etablissement.code_postal,
         '_addressBilling_city': data.etablissement.ville,
         '_wCertificate': data.siren,
-        '_rcs': data.numero_rcs,
+        '_rcs': convertRcsString(data.numero_rcs),
         '_apeCode': data.code_naf,
         '_vatNumber': data.numero_tva_intracommunautaire,
         '_capitalStock': data.capital,
@@ -174,7 +188,7 @@ function handleGroupEditOrCreatePage(data: Data) {
     selectLegalFormById('_legalForm', data.forme_juridique);
 }
 
-chrome.storage.sync.get(["apiKey"]).then((result) => {
+chrome.storage.sync.get(["apiKey"]).then((result: { [p: string]: any }): void => {
     if (!result.apiKey) {
         alert("Pappers API key is not defined !. Go to the options page to define it.");
     } else {
