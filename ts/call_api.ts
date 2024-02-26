@@ -1,7 +1,7 @@
-var borderCss: string = '2px solid #0d46a8';
-var apiKey : string = '';
+const borderCss: string = '2px solid #0d46a8';
+let apiKey: string = '';
 
-type Data = {
+type PappersData = {
     effectif_max: string;
     nom_entreprise: string,
     etablissement: {
@@ -22,21 +22,20 @@ type Data = {
     forme_juridique: string
 };
 
-function convertRcsString(rcsString: string): string {
-
+const convertRcsString = (rcsString: string): string => {
     if (rcsString.length <= 0) {
         throw new Error("String length must be greater than 0");
     }
 
-    let parts: string[] = rcsString.split(' ');
-    let number: string = parts[0] + parts[1] + parts[2];
-    let rcs: string = parts[3];
-    let city: string = parts[4];
+    const parts: string[] = rcsString.split(' ');
+    const number: string = parts[0] + parts[1] + parts[2];
+    const rcs: string = parts[3];
+    const city: string = parts[4];
 
     return `${rcs} ${city} ${number}`;
 }
 
-function setElementValue(element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value: string) {
+const setElementValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value: string) => {
     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
         element.value = value;
     } else {
@@ -45,17 +44,17 @@ function setElementValue(element: HTMLInputElement | HTMLSelectElement | HTMLTex
     element.style.border = borderCss;
 }
 
-function selectOption(element: HTMLSelectElement, optionText: string, createIfNotExist : boolean = false) {
-    let optionValue : string | undefined = Array.from(element.options).find(option => option.text.trim() === optionText.trim())?.value;
+const selectOption = (element: HTMLSelectElement, optionText: string, createIfNotExist: boolean = false) => {
+    let optionValue: string | undefined = Array.from(element.options).find(option => option.text.trim() === optionText.trim())?.value;
     if (!optionValue && createIfNotExist) {
-        const newOption : HTMLOptionElement = new Option(optionText, optionText, true, true);
+        const newOption: HTMLOptionElement = new Option(optionText, optionText, true, true);
         element.appendChild(newOption);
         optionValue = newOption.value;
     }
     if (optionValue) {
         element.value = optionValue;
         element.dispatchEvent(new Event('change', {'bubbles': true}));
-        const select2Container : HTMLElement | null = (element.closest('.select2-container') || element.nextSibling) as HTMLElement;
+        const select2Container: HTMLElement | null = (element.closest('.select2-container') || element.nextSibling) as HTMLElement;
         if (select2Container?.classList.contains('select2-container')) {
             select2Container.style.border = borderCss;
         }
@@ -64,7 +63,7 @@ function selectOption(element: HTMLSelectElement, optionText: string, createIfNo
     }
 }
 
-async function fetchData(apiKey: string, siret: string) {
+const fetchData = async (apiKey: string, siret: string) => {
     const response = await fetch(`https://api.pappers.fr/v2/entreprise?api_token=${apiKey}&siret=${siret}`);
     if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -72,7 +71,7 @@ async function fetchData(apiKey: string, siret: string) {
     return await response.json();
 }
 
-function fillFields(fieldMappings: { [s: string]: string; }, data: Data): void {
+const fillFields = (fieldMappings: { [s: string]: string; }, data: PappersData): void => {
     Object.entries(fieldMappings).forEach(([suffix, value]): void => {
         document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
             setElementValue(element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value);
@@ -80,7 +79,7 @@ function fillFields(fieldMappings: { [s: string]: string; }, data: Data): void {
     });
 }
 
-function changePlaceholderImage(single = true): void {
+const changePlaceholderImage = (single = true): void => {
     let imgElements: NodeListOf<HTMLImageElement> = document.querySelectorAll("#carousel1 > div > div > img");
 
     if (imgElements.length > 0) {
@@ -96,19 +95,19 @@ function changePlaceholderImage(single = true): void {
     }
 }
 
-function selectCountry(idSuffix: string, country: string): void {
+const selectCountry = (idSuffix: string, country: string): void => {
     document.querySelectorAll(`[id$='${idSuffix}']`).forEach(selectElement => {
         selectOption(selectElement as HTMLSelectElement, country);
     });
 }
 
-function selectLegalFormById(idSuffix: string, legalForm: string): void {
+const selectLegalFormById = (idSuffix: string, legalForm: string): void => {
     document.querySelectorAll(`select[id$='${idSuffix}']`).forEach(selectElement => {
         selectOption(selectElement as HTMLSelectElement, legalForm, true);
     });
 }
 
-function askForSiretAndCallApi(apiKey: string): void {
+const askForSiretAndCallApi = (apiKey: string): void => {
     let siret = prompt("Please enter the company SIRET:");
 
     if (siret) {
@@ -119,7 +118,7 @@ function askForSiretAndCallApi(apiKey: string): void {
     }
 }
 
-async function call_api(apiKey: string, siret: string): Promise<void> {
+const call_api = async (apiKey: string, siret: string): Promise<void> => {
     try {
         const data = await fetchData(apiKey, siret);
 
@@ -135,7 +134,7 @@ async function call_api(apiKey: string, siret: string): Promise<void> {
     }
 }
 
-function handleContactProfessionalCreatePage(data: Data): void {
+const handleContactProfessionalCreatePage = (data: PappersData): void => {
     let fieldMappings = {
         '_siret': data.etablissement.siret,
         '_corporateNameContact': data.nom_entreprise,
@@ -163,7 +162,7 @@ function handleContactProfessionalCreatePage(data: Data): void {
     selectLegalFormById('_legalFormContact', data.forme_juridique);
 }
 
-function handleGroupEditOrCreatePage(data: Data): void {
+const handleGroupEditOrCreatePage = (data: PappersData): void => {
     let fieldMappings = {
         '_corporateName': data.nom_entreprise,
         '_siretNumber': data.etablissement.siret,
