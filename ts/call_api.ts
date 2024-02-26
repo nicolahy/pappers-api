@@ -2,8 +2,15 @@ const borderCss: string = '2px solid #0d46a8';
 let apiKey: string = '';
 
 type PappersData = {
-    effectif_max: string;
     nom_entreprise: string,
+    siren: string,
+    forme_juridique: string,
+    numero_rcs: string,
+    code_naf: string,
+    numero_tva_intracommunautaire: string,
+    capital: string,
+    date_creation_formate: string,
+    effectif_max: string,
     etablissement: {
         siret: string,
         adresse_ligne_1: string,
@@ -13,13 +20,9 @@ type PappersData = {
         pays: string,
         rcs: string
     },
-    siren: string,
-    numero_rcs: string,
-    code_naf: string,
-    numero_tva_intracommunautaire: string,
-    capital: string,
-    date_creation_formate: string,
-    forme_juridique: string
+    sites_internet: string[],
+    email: string,
+    telephone: string,
 };
 
 const convertRcsString = (rcsString: string): string => {
@@ -64,7 +67,7 @@ const selectOption = (element: HTMLSelectElement, optionText: string, createIfNo
 }
 
 const fetchData = async (apiKey: string, siret: string) => {
-    const response = await fetch(`https://api.pappers.fr/v2/entreprise?api_token=${apiKey}&siret=${siret}`);
+    const response = await fetch(`https://api.pappers.fr/v2/entreprise?api_token=${apiKey}&siret=${siret}&champs_supplementaires=sites_internet,telephone,email`);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
@@ -148,6 +151,8 @@ const handleContactProfessionalCreatePage = (data: PappersData): void => {
         '_numberOfEmployees': data.effectif_max,
         '_socialCapital': data.capital,
         '_interestComment': 'Data fetched from Pappers API ✅',
+        '_email': data.email,
+        '_contactTelephone_phoneNumber': data.telephone,
     };
 
     var element: HTMLElement | null = document.querySelector("a[href='#add']");
@@ -178,6 +183,9 @@ const handleGroupEditOrCreatePage = (data: PappersData): void => {
         '_capitalStock': data.capital,
         '_activity': data.etablissement.rcs,
         '_groupCreationDate': data.date_creation_formate,
+        '_website': data.sites_internet.join('; '),
+        '_email': data.email,
+        '_phoneNumber': typeof data.telephone !== undefined ? data.telephone : '',
     };
 
     fillFields(fieldMappings, data);
