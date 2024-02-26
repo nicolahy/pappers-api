@@ -66,8 +66,14 @@ const selectOption = (element: HTMLSelectElement, optionText: string, createIfNo
     }
 }
 
-const fetchData = async (apiKey: string, siret: string) => {
-    const response = await fetch(`https://api.pappers.fr/v2/entreprise?api_token=${apiKey}&siret=${siret}&champs_supplementaires=sites_internet,telephone,email`);
+const fetchData = async (apiKey: string, siret: string): Promise<any> => {
+    let additionalFields: string = '';
+    const result: { [p: string]: any } = await chrome.storage.sync.get(["additionalFields"]);
+    if (result.additionalFields === 'yes') {
+        additionalFields = '&champs_supplementaires=sites_internet,telephone,email';
+    }
+
+    const response: Response = await fetch(`https://api.pappers.fr/v2/entreprise?api_token=${apiKey}&siret=${siret}${additionalFields}`);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
