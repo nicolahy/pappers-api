@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Document</title>
-    <link rel="stylesheet" href="../css/popup.css"/>
-    <script src="../dist/popup.js" defer></script>
-</head>
-<body>
-<main>
-    <div>
-        <button id="call-api">Call Pappers API</button>
-    </div>
-    <div>
-        <button id="check-options">Check options</button>
-    </div>
-</main>
-</body>
+    <head>
+        <title>Pappers API Extension</title>
+        <meta charset="UTF-8" />
+
+        <link rel="stylesheet" href="../node_modules/98.css/dist/98.css" />
+        <script src="../dist/popup.js" defer></script>
+    </head>
+
+    <body style="margin: 0; padding: 0">
+        <div class="window" style="width: 250px">
+            <div class="title-bar">
+                <div class="title-bar-text">
+                    Pappers API Extension
+                </div>
+
+                <div class="title-bar-controls">
+                    <button aria-label="Minimize"></button>
+                    <button aria-label="Maximize"></button>
+                    <button aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="window-body">
+                <p>Hello, world ! 🚀</p>
+                <section class="field-row" style="justify-content: flex-end">
+                    <button id="call-api">Call Pappers API V2</button>
+                    <button id="check-options">Check options</button>
+                </section>
+            </div>
+        </div>
+    </body>
 </html>

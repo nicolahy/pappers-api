@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8">
         <title>Pappers API Extension -- Options</title>
-    </head>
-    <body>
-        <div>
-            <label for="apiKey">Your Pappers API key :</label>
-            <input type="text" id="apiKey">
-        </div>
-        <div>
-            <label for="additionalFields">Add additional fields : websites / email / phone (+2 🪙) ?</label>
-            <select id="additionalFields">
-                <option value="no">no</option>
-                <option value="yes">yes</option>
-            </select>
-        </div>
-        <div id="status"></div>
-        <button id="save">Save</button>
+        <meta charset="UTF-8" />
 
+        <link rel="stylesheet" href="../node_modules/98.css/dist/98.css" />
         <script src="../dist/options.js"></script>
+    </head>
+
+    <body style="margin: 0; padding: 0">
+        <div class="window" style="width: 100%">
+            <div class="window-body">
+
+                <div class="field-row">
+                    <label for="apiKey">Your Pappers API key</label>
+                    <input id="apiKey" type="text" />
+                </div>
+
+                <div class="field-row">
+                    <label for="additionalFields">Add additional fields : websites / email / phone (+2 🪙) ?</label>
+                    <select id="additionalFields">
+                        <option value="no">no</option>
+                        <option value="yes">yes</option>
+                    </select>
+                </div>
+
+                <div id="status"></div>
+
+                <section class="field-row" style="justify-content: flex-end">
+                    <button id="save">Save options</button>
+                </section>
+            </div>
+        </div>
     </body>
 </html>

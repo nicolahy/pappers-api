@@ -9,7 +9,7 @@ const saveOptions = () => {
     const apiKey: string = apiKeyElement.value;
     const additionalFields: string = additionalFieldsElement.value;
 
-    chrome.storage.sync.set({apiKey: apiKey, additionalFields: additionalFields}, () => {
+    chrome.storage.sync.set({apiKey: apiKey, additionalFields: additionalFields}, (): void => {
         const status: HTMLElement | null = document.getElementById('status');
 
         if (status === null) {
@@ -17,7 +17,7 @@ const saveOptions = () => {
         }
 
         status.textContent = 'Options saved !';
-        setTimeout(() => {
+        setTimeout((): void => {
             status.textContent = '';
         }, 750);
     });
