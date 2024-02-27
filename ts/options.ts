@@ -16,7 +16,7 @@ const saveOptions = () => {
             return;
         }
 
-        status.textContent = 'Options saved.';
+        status.textContent = 'Options saved !';
         setTimeout(() => {
             status.textContent = '';
         }, 750);
