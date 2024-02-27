@@ -1,4 +1,4 @@
-const saveOptions = () => {
+function saveOptions(this: HTMLButtonElement): void {
     const apiKeyElement: HTMLInputElement | null = document.getElementById('apiKey') as HTMLInputElement | null;
     const additionalFieldsElement: HTMLSelectElement | null = document.getElementById('additionalFields') as HTMLSelectElement | null;
 
@@ -9,19 +9,20 @@ const saveOptions = () => {
     const apiKey: string = apiKeyElement.value;
     const additionalFields: string = additionalFieldsElement.value;
 
+    const originalText = this.textContent;
+
     chrome.storage.sync.set({apiKey: apiKey, additionalFields: additionalFields}, (): void => {
-        const status: HTMLElement | null = document.getElementById('status');
+        // Use 'this' to refer to the clicked element
+        this.textContent = 'OK!';
 
-        if (status === null) {
-            return;
-        }
-
-        status.textContent = 'Options saved !';
         setTimeout((): void => {
-            status.textContent = '';
+            // Restore the original text
+            this.textContent = originalText;
+            // Reset the button state
+            this.blur();
         }, 750);
-    });
-};
+    })
+}
 
 const restoreOptions = () => {
     chrome.storage.sync.get({apiKey: 'XXX', additionalFields: 'no'}, (items: { [p: string]: any }): void => {
@@ -41,5 +42,5 @@ document.addEventListener('DOMContentLoaded', restoreOptions);
 
 const saveElement: HTMLButtonElement | null = document.getElementById('save') as HTMLButtonElement | null
 if (saveElement) {
-    saveElement.addEventListener('click', saveOptions);
+    saveElement.addEventListener('click', saveOptions.bind(saveElement));
 }

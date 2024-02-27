@@ -44,7 +44,10 @@ const setElementValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTex
     } else {
         element.textContent = value;
     }
-    element.style.border = borderCss;
+
+    if (value !== '') {
+        element.style.border = borderCss;
+    }
 }
 
 const selectOption = (element: HTMLSelectElement, optionText: string, createIfNotExist: boolean = false) => {
@@ -131,6 +134,8 @@ const call_api = async (apiKey: string, siret: string): Promise<void> => {
     try {
         const data = await fetchData(apiKey, siret);
 
+        console.log(typeof data.telephone);
+
         if (window.location.href.indexOf("admin/contact-professional/create") > -1) {
             handleContactProfessionalCreatePage(data);
         }
@@ -189,9 +194,9 @@ const handleGroupEditOrCreatePage = (data: PappersData): void => {
         '_capitalStock': data.capital,
         '_activity': data.etablissement.rcs,
         '_groupCreationDate': data.date_creation_formate,
-        '_website': data.sites_internet.join('; '),
-        '_email': data.email,
-        '_phoneNumber': typeof data.telephone !== undefined ? data.telephone : '',
+        '_website': data.sites_internet !== undefined ? data.sites_internet.join('; ') : '',
+        '_email': data.email !== undefined ? data.email : '',
+        '_phoneNumber': data.telephone !== undefined ? data.telephone : '',
     };
 
     fillFields(fieldMappings, data);
