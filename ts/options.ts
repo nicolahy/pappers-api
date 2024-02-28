@@ -1,3 +1,5 @@
+import '98.css';
+
 function saveOptions(this: HTMLButtonElement): void {
     const apiKeyElement: HTMLInputElement | null = document.getElementById('apiKey') as HTMLInputElement | null;
     const additionalFieldsElement: HTMLSelectElement | null = document.getElementById('additionalFields') as HTMLSelectElement | null;

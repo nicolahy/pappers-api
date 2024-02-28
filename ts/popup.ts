@@ -1,3 +1,5 @@
+import '98.css';
+
 const callApiButton: HTMLButtonElement | null = document.getElementById('call-api') as HTMLButtonElement | null;
 const checkOptionsButton: HTMLButtonElement | null = document.getElementById('check-options') as HTMLButtonElement | null;
 const closeButton: HTMLButtonElement | null = document.getElementById('close-button') as HTMLButtonElement | null;
