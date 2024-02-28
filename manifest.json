@@ -1,7 +1,7 @@
 {
   "name": "Pappers API Extension",
   "description": "This extension allows you to fill Kepler forms with Pappers API 2.11.0 data.",
-  "version": "3.3",
+  "version": "3.5",
   "manifest_version": 3,
   "icons": {
     "16": "images/pappers_logo.png",
@@ -9,7 +9,11 @@
     "64": "images/pappers_logo.png",
     "128": "images/pappers_logo.png"
   },
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
   "action": {
     "default_popup": "html/popup.html",
     "default_icon": "images/pappers_logo.png"
@@ -18,8 +22,23 @@
     "page": "html/options.html",
     "open_in_tab": false
   },
-  "web_accessible_resources": [{
-    "resources": ["images/placeholder_1.png", "images/placeholder_2.png"],
-    "matches": ["<all_urls>"]
-  }]
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/placeholder_1.png",
+        "images/placeholder_2.png",
+        "images/placeholder_3.png",
+        "images/placeholder_4.png",
+        "images/placeholder_5.png",
+        "images/placeholder_6.png",
+        "images/placeholder_7.png",
+        "images/placeholder_8.png",
+        "images/placeholder_9.png",
+        "images/placeholder_10.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }

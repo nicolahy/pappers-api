@@ -38,7 +38,7 @@ const convertRcsString = (rcsString: string): string => {
     return `${rcs} ${city} ${number}`;
 }
 
-const setElementValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value: string) => {
+const setElementValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value: string): void => {
     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
         element.value = value;
     } else {
@@ -50,7 +50,7 @@ const setElementValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTex
     }
 }
 
-const selectOption = (element: HTMLSelectElement, optionText: string, createIfNotExist: boolean = false) => {
+const selectOption = (element: HTMLSelectElement, optionText: string, createIfNotExist: boolean = false): void => {
     let optionValue: string | undefined = Array.from(element.options).find(option => option.text.trim() === optionText.trim())?.value;
     if (!optionValue && createIfNotExist) {
         const newOption: HTMLOptionElement = new Option(optionText, optionText, true, true);
@@ -83,7 +83,7 @@ const fetchData = async (apiKey: string, siret: string): Promise<any> => {
     return await response.json();
 }
 
-const fillFields = (fieldMappings: { [s: string]: string; }, data: PappersData): void => {
+const fillFields = (fieldMappings: { [s: string]: string; }): void => {
     Object.entries(fieldMappings).forEach(([suffix, value]): void => {
         document.querySelectorAll(`[id$='${suffix}']`).forEach(element => {
             setElementValue(element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value);
@@ -91,15 +91,17 @@ const fillFields = (fieldMappings: { [s: string]: string; }, data: PappersData):
     });
 }
 
-const changePlaceholderImage = (single = true): void => {
+const changePlaceholderImage = (single: boolean = true): void => {
     let imgElements: NodeListOf<HTMLImageElement> = document.querySelectorAll("#carousel1 > div > div > img");
 
     if (imgElements.length > 0) {
-        imgElements[0].src = chrome.runtime.getURL(`images/placeholder_1.png`);
+        const randomImageNumber1: number = Math.floor(Math.random() * 10) + 1;
+        imgElements[0].src = chrome.runtime.getURL(`images/placeholder_${randomImageNumber1}.png`);
         imgElements[0].style.border = borderCss;
 
         if (!single && imgElements.length > 1) {
-            imgElements[1].src = chrome.runtime.getURL(`images/placeholder_2.png`);
+            const randomImageNumber2: number = Math.floor(Math.random() * 10) + 1;
+            imgElements[1].src = chrome.runtime.getURL(`images/placeholder_${randomImageNumber2}.png`);
             imgElements[1].style.border = borderCss;
         }
     } else {
@@ -120,7 +122,7 @@ const selectLegalFormById = (idSuffix: string, legalForm: string): void => {
 }
 
 const askForSiretAndCallApi = (apiKey: string): void => {
-    let siret = prompt("Please enter the company SIRET :");
+    let siret: string | null = prompt("Please enter the company SIRET :");
 
     if (siret) {
         siret = siret.replace(/\s+/g, '');
@@ -149,7 +151,22 @@ const call_api = async (apiKey: string, siret: string): Promise<void> => {
 }
 
 const handleContactProfessionalCreatePage = (data: PappersData): void => {
-    let fieldMappings = {
+    let fieldMappings: {
+        _interestComment: string;
+        _contactAddresses_1_address_address: string;
+        _email: string;
+        _contactAddresses_1_address_postalCode: string;
+        _contactAddresses_1_address_city: string;
+        _companyCreationDate: string;
+        _numberOfEmployees: string;
+        _socialCapital: string;
+        _siret: string;
+        _corporateNameContact: string;
+        _contactAddresses_1_address_name: string;
+        _contactTelephone_phoneNumber: string;
+        _tvaIntracom: string;
+        _contactAddresses_1_address_address2: string
+    } = {
         '_siret': data.etablissement.siret,
         '_corporateNameContact': data.nom_entreprise,
         '_tvaIntracom': data.numero_tva_intracommunautaire,
@@ -171,7 +188,7 @@ const handleContactProfessionalCreatePage = (data: PappersData): void => {
         element.click();
     }
 
-    fillFields(fieldMappings, data);
+    fillFields(fieldMappings);
 
     changePlaceholderImage();
     selectCountry('_contactAddresses_1_address_country', data.etablissement.pays);
@@ -199,7 +216,7 @@ const handleGroupEditOrCreatePage = (data: PappersData): void => {
         '_phoneNumber': data.telephone !== undefined ? data.telephone : '',
     };
 
-    fillFields(fieldMappings, data);
+    fillFields(fieldMappings);
 
     changePlaceholderImage(false);
     selectCountry('_addressBilling_country', data.etablissement.pays);
