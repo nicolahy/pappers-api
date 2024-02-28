@@ -5,7 +5,7 @@ const checkOptionsButton: HTMLButtonElement | null = document.getElementById('ch
 const closeButton: HTMLButtonElement | null = document.getElementById('close-button') as HTMLButtonElement | null;
 
 async function getCurrentTab(): Promise<chrome.tabs.Tab> {
-    const queryOptions = {active: true, currentWindow: true};
+    const queryOptions: { active: boolean; currentWindow: boolean } = {active: true, currentWindow: true};
     const [tab]: chrome.tabs.Tab[] = await chrome.tabs.query(queryOptions);
     return tab;
 }

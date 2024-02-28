@@ -1,4 +1,4 @@
-chrome.storage.sync.get(["apiKey", "additionalFields"]).then((result: { [p: string]: any }) => {
+chrome.storage.sync.get(["apiKey", "additionalFields"]).then((result: { [p: string]: any }): void => {
     let message: string = '';
 
     if (result.apiKey) {

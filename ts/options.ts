@@ -14,19 +14,16 @@ function saveOptions(this: HTMLButtonElement): void {
     const originalText = this.textContent;
 
     chrome.storage.sync.set({apiKey: apiKey, additionalFields: additionalFields}, (): void => {
-        // Use 'this' to refer to the clicked element
         this.textContent = 'OK!';
 
         setTimeout((): void => {
-            // Restore the original text
             this.textContent = originalText;
-            // Reset the button state
             this.blur();
         }, 750);
     })
 }
 
-const restoreOptions = () => {
+const restoreOptions = (): void => {
     chrome.storage.sync.get({apiKey: 'XXX', additionalFields: 'no'}, (items: { [p: string]: any }): void => {
         const apiKeyElement: HTMLInputElement | null = document.getElementById('apiKey') as HTMLInputElement | null;
         const additionalFieldsElement: HTMLSelectElement | null = document.getElementById('additionalFields') as HTMLSelectElement | null;

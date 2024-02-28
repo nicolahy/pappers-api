@@ -166,7 +166,7 @@ const handleContactProfessionalCreatePage = (data: PappersData): void => {
         '_contactTelephone_phoneNumber': data.telephone !== undefined ? data.telephone : '',
     };
 
-    var element: HTMLElement | null = document.querySelector("a[href='#add']");
+    const element: HTMLElement | null = document.querySelector("a[href='#add']");
     if (element) {
         element.click();
     }
