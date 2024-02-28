@@ -120,7 +120,7 @@ const selectLegalFormById = (idSuffix: string, legalForm: string): void => {
 }
 
 const askForSiretAndCallApi = (apiKey: string): void => {
-    let siret = prompt("Please enter the company SIRET:");
+    let siret = prompt("Please enter the company SIRET :");
 
     if (siret) {
         siret = siret.replace(/\s+/g, '');
@@ -162,8 +162,8 @@ const handleContactProfessionalCreatePage = (data: PappersData): void => {
         '_numberOfEmployees': data.effectif_max,
         '_socialCapital': data.capital,
         '_interestComment': 'Data fetched from Pappers API ✅',
-        '_email': data.email,
-        '_contactTelephone_phoneNumber': data.telephone,
+        '_email': data.email !== undefined ? data.email : '',
+        '_contactTelephone_phoneNumber': data.telephone !== undefined ? data.telephone : '',
     };
 
     var element: HTMLElement | null = document.querySelector("a[href='#add']");
